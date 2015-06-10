@@ -1,0 +1,41 @@
+<layout name="../../Common/admin_layout" />
+<p>
+商品类型：
+	<select onchange="location.href='__ACTION__/type_id/'+this.value;" name="type_id">
+	<?php 
+	$typeId = I('get.type_id');
+	foreach ($typeData as $k => $v): 
+		if($typeId == $v['id'])
+			$select = 'selected="selected"';
+		else
+			$select = '';
+	?>
+		<option <?php echo $select; ?> value="<?php echo $v['id']; ?>"><?php echo $v['type_name']; ?></option>
+	<?php endforeach; ?>
+	</select>
+</p>
+<!-- 列表 -->
+<div class="list-div" id="listDiv">
+	<table cellpadding="3" cellspacing="1">
+    	<tr>
+            <th >属性名称</th>
+            <th >属性类型</th>
+            <th >可选值，如果为空就是手工录入，如果不为空，代表下拉框</th>
+			<th width="60">操作</th>
+        </tr>
+		<?php foreach ($data as $k => $v): ?>            
+			<tr class="tron">
+				<td><?php echo $v['attr_name']; ?></td>
+				<td><?php echo $v['attr_type']==1?'单选':'唯一'; ?></td>
+				<td><?php echo $v['attr_option_value']; ?></td>
+		        <td align="center">
+		        	<a href="<?php echo U('edit?type_id='.I('get.type_id').'&id='.$v['id'].'&p='.I('get.p')); ?>" title="编辑">编辑</a> |
+	                <a href="<?php echo U('delete?type_id='.I('get.type_id').'&id='.$v['id'].'&p='.I('get.p')); ?>" onclick="return confirm('确定要删除吗？');" title="移除">移除</a> 
+		        </td>
+	        </tr>
+        <?php endforeach; ?> 
+		<?php if(preg_match('/\d/', $page)): ?>  
+        <tr><td align="right" nowrap="true" colspan="99" height="30"><?php echo $page; ?></td></tr> 
+        <?php endif; ?> 
+	</table>
+</div>

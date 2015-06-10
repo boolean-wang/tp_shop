@@ -1,0 +1,408 @@
+<layout name="../../Common/admin_layout" />
+<link href="__PUBLIC__/umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" charset="utf-8" src="__PUBLIC__/umeditor/umeditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="__PUBLIC__/umeditor/umeditor.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/umeditor/lang/zh-cn/zh-cn.js"></script>
+
+<!-- 时间插件样式和JS -->
+<link href="__PUBLIC__/datepicker/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="__PUBLIC__/datepicker/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="__PUBLIC__/datepicker/datepicker_zh-cn.js"></script>
+
+
+<style>
+ul#attr_list li{margin:10px;}
+</style>
+
+<style>
+#image_ul li{float:left;margin:5px;list-style-type:none;height:180px;}
+</style>
+
+<div class="tab-div">
+    <div id="tabbar-div">
+        <p>
+            <span class="tab-front">基本信息</span>
+            <span class="tab-back">商品描述</span>
+            <span class="tab-back">会员价格</span>
+            <span class="tab-back">商品属性</span>
+            <span class="tab-back">商品相册</span>
+        </p>
+    </div>
+    <div id="tabbody-div">
+        <form enctype="multipart/form-data" action="__SELF__" method="post">
+        	<input type="hidden" name="id" value="<?php echo $info['id']; ?>" />
+            <table width="90%" class="form_table" align="center">
+            	<tr>
+                    <td class="label">是否上架：</td>
+                    <td>
+                        <input type="radio" name="is_on_sale" value="1" <?php if($info['is_on_sale'] == 1) echo 'checked="checked"'; ?> /> 是
+                        <input type="radio" name="is_on_sale" value="0" <?php if($info['is_on_sale'] == 0) echo 'checked="checked"'; ?> /> 否
+                    </td>
+                </tr>
+            	<tr>
+                    <td class="label">主分类：</td>
+                    <td>
+	                    <select name="cat_id">
+	                    	<option value="">选择分类</option>
+	                    	<?php foreach ($catData as $k => $v): 
+	                    		if($info['cat_id'] == $v['id'])
+	                    			$select = 'selected="selected"';
+	                    		else 
+	                    			$select = '';
+	                    	?>
+	                    		<option <?php echo $select; ?> value="<?php echo $v['id']; ?>"><?php echo str_repeat('-',$v['level']*8).$v['cat_name']; ?></option>
+	                    	<?php endforeach; ?>
+	                    </select>
+	                    <span class="require-field">*</span>
+	                </td>
+                </tr>
+                <tr>
+                    <td class="label">扩展分类：</td>
+                    <td>
+                    	<input type="button" value="添加" onclick="$(this).parent().append($(this).next('select').clone());" />
+	                    <?php if($ecatId): ?>
+	                    	<?php foreach ($ecatId as $k0 => $v0): ?>
+		                    	<select name="ext_cat_id[]">
+			                    	<option value="">选择分类</option>
+			                    	<?php foreach ($catData as $k => $v): 
+			                    			if($v['id'] == $v0['cat_id'])
+			                    				$select = 'selected="selected"';
+			                    			else 
+			                    				$select = '';
+			                    	?>
+			                    		<option <?php echo $select; ?> value="<?php echo $v['id']; ?>"><?php echo str_repeat('-',$v['level']*8).$v['cat_name']; ?></option>
+			                    	<?php endforeach; ?>
+			                    </select>
+			                <?php endforeach; ?>
+			             <?php else: ?>
+			            	 <select name="ext_cat_id[]">
+			                    	<option value="">选择分类</option>
+			                    	<?php foreach ($catData as $k => $v): ?>
+			                    		<option value="<?php echo $v['id']; ?>"><?php echo str_repeat('-',$v['level']*8).$v['cat_name']; ?></option>
+			                    	<?php endforeach; ?>
+			                    </select>
+			             <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">商品名称：</td>
+                    <td><input type="text" name="goods_name" value="<?php echo $info['goods_name']; ?>" size="60" />
+                    <span class="require-field">*</span></td>
+                </tr>
+                 <tr>
+                    <td class="label">市场售价：</td>
+                    <td>
+                        <input type="text" name="market_price" value="<?php echo $info['market_price']; ?>" size="20"/>
+                        <span class="require-field">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">本店售价：</td>
+                    <td>
+                        <input type="text" name="shop_price" value="<?php echo $info['shop_price']; ?>" size="20"/>
+                        <span class="require-field">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">商品图片：</td>
+                    <td>
+                    	<?php showImage($info['sm_logo']); ?><br />
+                        <input type="file" name="logo" size="35" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><input id="promote_switch" type="checkbox" />促销价：</td>
+                    <td>
+                        <input value="<?php echo $info['promote_price']; ?>" disabled="disabled" type="text" size="10" name="promote_price" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">促销日期：</td>
+                    <td>
+                    	从
+                        <input value="<?php echo $info['promote_start_time'] ? date('Y-m-d', $info['promote_start_time']) : ''; ?>" disabled="disabled" id="start" size="10" type="text" name="promote_start_time" />
+                        到
+                        <input value="<?php echo $info['promote_end_time'] ? date('Y-m-d', $info['promote_end_time']) : ''; ?>" disabled="disabled" id="end" size="10" type="text" name="promote_end_time" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">是否推荐：</td>
+                    <td>
+                        <input type="checkbox" <?php if($info['is_hot'] == 1) echo 'checked="checked"'; ?> name="is_hot" value="1" />热销
+                        <input type="checkbox" <?php if($info['is_new'] == 1) echo 'checked="checked"'; ?> name="is_new" value="1" />新品
+                        <input type="checkbox" <?php if($info['is_rec'] == 1) echo 'checked="checked"'; ?> name="is_rec" value="1" />推荐
+                        <input type="checkbox" <?php if($info['is_best'] == 1) echo 'checked="checked"'; ?> name="is_best" value="1" />推荐到中间大类
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">排序数字：</td>
+                    <td>
+                        <input type="text" size="5" name="sort_num" value="<?php echo $info['sort_num']; ?>" />
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" class="form_table" align="center" style="display:none;">
+            	<tr>
+                    <td>
+                        <textarea id="goods_desc" name="goods_desc"><?php echo $info['goods_desc']; ?></textarea>
+                    </td>
+                </tr>
+            </table>
+             <!-- 会员价格 -->
+            <table width="90%" class="form_table" align="center" style="display:none;">
+            	<tr><td colspan="2" style="padding:15px;font-size:16px;color:#6599A5;font-weight:bold;">如果不指定会员价格，就按会员级别的折扣率计算会员价格</td></tr>
+            	<?php 
+            	// 循环输出每个会员级别
+            	foreach ($mlData as $k => $v): 
+            		// 循环会员价格找出这个级别对应的价格
+            		$price = '';
+            		foreach ($mpData as $k1 => $v1)
+            		{
+            			if($v1['level_id'] == $v['id'])
+            			{
+            				$price = $v1['level_price'];
+            				break; 
+            			}
+            		}
+            	?>
+            		<tr>
+            			<td width="120"><?php echo $v['level_name']; ?>【<?php echo $v['price_rate']; ?>%】：</td>
+            			<td>￥ <input value="<?php echo $price; ?>" type="text" name="mp[<?php echo $v['id']; ?>]" /> 元</td>
+            		</tr>
+            	<?php endforeach; ?>
+            </table>
+            <!-- 商品属性 -->
+            <table width="90%" class="form_table" align="center" style="display:none;">
+            	<tr><td>商品类型：
+            	<select name="type_id">
+            		<option value="">选择类型</option>
+						<?php 
+						foreach ($typeData as $k => $v): 
+							if($info['type_id'] == $v['id'])
+								$select = 'selected="selected"';
+							else 
+								$select = '';
+						?>
+							<option <?php echo $select; ?> value="<?php echo $v['id']; ?>"><?php echo $v['type_name']; ?></option>
+						<?php endforeach; ?>
+					</select>
+            	</td></tr>
+            	<!-- 下面TR用来显示AJAX获取到的属性 -->
+            	<tr><td>
+            		<ul id="attr_list">
+            		<?php 
+            		 $_attr_id = array(); // 把所有出现过的属性ID存到这里
+            		// 循环商品所拥有的所有的属性
+            		foreach ($gaData as $k => $v): 
+            			// 判断这个属性ID是否出现过,如果出现过就是-号
+            			if(in_array($v['attr_id'], $_attr_id))
+            				$abtn = '-';
+            			else 
+            			{
+            				// 如果数组中没有出现这个属性ID说明是第一次出现就是+号
+            				$abtn = '+';
+            				// 把第一次出现的这个属性ID加到数组中
+            				$_attr_id[] = $v['attr_id'];
+            			}
+            		?>
+            			<li>
+            				<?php if($v['attr_type'] == 1): ?>
+            					<a gaid="<?php echo $v['id']; ?>" onclick='addNew(this);' href='#'>[<?php echo $abtn; ?>]</a>
+            				<?php endif; ?>
+            				<?php if($abtn == '+'): ?>
+            					<a gaid="<?php echo $v['id']; ?>" onclick='addNew(this);' href='#'>[-]</a>
+            				<?php endif; ?>
+            				<?php echo $v['attr_name']; ?>： 
+            				<?php if($v['attr_option_value']): 
+            					$_attr = explode(',', $v['attr_option_value']);
+            				?>
+            					<select name='old_attr_value[<?php echo $v['attr_id']; ?>][<?php echo $v['id']; ?>]'>
+            					<option value=''>请选择</option>
+            					<?php foreach ($_attr as $k1 => $v1): 
+            							if($v1 == $v['attr_value'])
+            								$select = 'selected="selected"';
+            							else 
+            								$select = '';
+            					?>
+            						<option <?php echo $select; ?> value='<?php echo $v1; ?>'><?php echo $v1; ?></option>
+            					<?php endforeach; ?>
+            					</select>
+            				<?php else: ?>
+            					<input value="<?php echo $v['attr_value']; ?>" type='text' name='old_attr_value[<?php echo $v['attr_id']; ?>][<?php echo $v['id']; ?>]' />
+            				<?php endif; ?>
+            				 属性价格：<input value="<?php echo $v['attr_price']; ?>" type='text' name='old_attr_price[<?php echo $v['attr_id']; ?>][<?php echo $v['id']; ?>]' />
+            			</li>
+            		<?php endforeach; ?>
+            		</ul>
+            	</td></tr>
+            </table>
+            <!-- 相册 -->
+            <table id="image_table" width="100%" class="form_table" align="center" style="display:none;">
+            	<tr><td><input id="add_image" type="button" value="添加一张" /></td></tr>
+            	<tr><td>&nbsp;</td></tr>
+            	<tr><td>
+            	<ul id="image_ul">
+	            	<?php foreach ($gpData as $k => $v): ?>
+		            	<li>
+			            	<input pic_id="<?php echo $v['id']; ?>" type="button" value="删除" /><br />
+			            	<?php showImage($v['sm_image_url']); ?>
+		            	</li>
+	            	<?php endforeach; ?>
+            	</ul>
+            	</td></tr>
+            	<tr><td>&nbsp;</td></tr>
+            </table>
+            <div class="button-div">
+                <input type="submit" value=" 确定 " class="button"/>
+                <input type="reset" value=" 重置 " class="button" />
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+// 为类型添加JAAX事件
+$("select[name='type_id']").change(function(){
+	// 当前选择的类型的ID
+	var typeId = $(this).val();
+	// AJAX取出这个类型下所有的属性
+	$.ajax({
+		type : "GET",
+		url : "<?php echo U('ajaxGetAttr', '', FALSE); ?>/type_id/"+typeId,
+		dataType : "json",  // 指明服务器返回的是json格式的数据
+		success : function(data)  // 处理服务器返回的JSON数据
+		{
+			var html = "";
+			// 循环服务器返回的属性
+			$(data).each(function(k,v){
+				html += "<li>";
+				// 如果属性是单选的前面有+号
+				if(v.attr_type == 1)
+					html += "<a onclick='addNew(this);' href='#'>[+]</a>";
+				html += v.attr_name + " ： ";
+				// 判断是否有可选值，如果有就是下拉框
+				if(v.attr_option_value != "")
+				{
+					// 把可选值转化成数组
+					var _attr = v.attr_option_value.split(","); 
+					html += "<select name='attr_value["+v.id+"][]'><option value=''>请选择</option>";
+					// 循环数组制作选项
+					for(var i=0; i<_attr.length; i++)
+						html += "<option value='"+_attr[i]+"'>"+_attr[i]+"</option>";
+					html += "</select>";
+				}
+				else
+					html += "<input type='text' name='attr_value["+v.id+"][]' />";
+				// 如果属性是单选的有属性价格
+				if(v.attr_type == 1)
+					html += " 属性价格：<input type='text' name='attr_price["+v.id+"][]' />";
+				html += "</li>";
+			});
+			// 把拼好的字符串放到页面上
+			$("#attr_list").html(html);
+		}
+	});
+});
+// 当点击+号，参数：点击的A标签
+function addNew(a)
+{
+	// 先获取a标签所在的li
+	var li = $(a).parent();
+	if($(a).html() == "[+]")
+	{
+		var newLi = li.clone();
+		// 把下撋框中的name去掉old_
+		var selectName = newLi.find("select").attr("name");
+		selectName = selectName.replace('old_', '');
+		newLi.find("select").prop("name", selectName); // 把替换完的名称再设置回去
+		// 再把文本框中也去掉old_
+		newLi.find("input").each(function(k,v){
+			var oldName = $(v).attr('name');
+			var newName = oldName.replace('old_', '');
+			$(v).prop("name", newName);
+		});
+		// 把+变-
+		newLi.find("a").html("[-]");
+		li.after(newLi);
+	}
+	else
+	{
+		if(confirm('确定要删除吗？'))
+		{
+			// 先获取要删除的记录的ID
+			var gaid = $(a).attr('gaid');
+			$.ajax({
+				type : "GET",
+				url : "<?php echo U('ajaxDelAttr', '', FALSE); ?>/gaid/"+gaid,
+				dataType : "json",
+				success : function(data)
+				{
+					if(data.ok == 1)
+						li.remove(); // 从页面删除这行
+					else
+						alert(data.error);
+				}
+			});
+		}
+	}
+}
+// 为删除图片的按钮添加JS
+$("#image_ul li :button").click(function(){
+	if(confirm('确定要删除吗？'))
+	{
+		// 获取这个图片的ID
+		var pic_id = $(this).attr('pic_id');
+		// 获取图片所在的li
+		var li = $(this).parent();
+		$.ajax({
+			type : "GET",
+			url : "<?php echo U('ajaxDelImage', '', FALSE); ?>/pic_id/"+pic_id,
+			success : function(data)
+			{
+				// ajax执行完之后从页面中删除li标签
+				li.remove();
+			}
+		});
+	}
+});
+
+$("#add_image").click(function(){
+	$("#image_table").append('<tr><td><a onclick="$(this).parent().parent().remove();" href="#">[-]</a><input type="file" name="image[]" /></td></tr>');
+});
+var um = UM.getEditor('goods_desc', {
+	initialFrameWidth:"100%"
+});
+$("#tabbar-div p span").click(function(){
+	// 获取当前点击的是第几个按钮
+	var i = $(this).index();
+	// 隐藏所有的Table
+	$(".form_table").hide();
+	// 再选中第I个table并显示出来
+	$(".form_table").eq(i).show();
+	// 先把原来选中的按钮去掉选中状态
+	$(".tab-front").removeClass("tab-front").addClass('tab-back');
+	// 再把当前点击的按钮变成选中的状态
+	$(this).removeClass("tab-back").addClass('tab-front');
+});
+// 初始化时间插件
+$("#start").datepicker({ dateFormat: "yy-mm-dd" });
+$("#end").datepicker({ dateFormat: "yy-mm-dd" });
+// 是否允许促销价
+$("#promote_switch").click(function(){
+	if($(this).prop("checked"))
+	{
+		$("input[name='promote_price']").removeAttr('disabled');
+		$("input[name='promote_start_time']").removeAttr('disabled');
+		$("input[name='promote_end_time']").removeAttr('disabled');
+	}
+	else
+	{
+		$("input[name='promote_price']").prop('disabled', 'disabled');
+		$("input[name='promote_start_time']").prop('disabled', 'disabled');
+		$("input[name='promote_end_time']").prop('disabled', 'disabled');
+	}
+});
+// 如果当前有促销价，就点击一下使促销可用
+<?php if($info['promote_price']): ?>
+$("#promote_switch").trigger("click");
+<?php endif; ?>
+</script>
